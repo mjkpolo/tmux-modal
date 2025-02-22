@@ -177,8 +177,6 @@ bind-key -T $KT_CMD $KBD_CMD_EXIT set-option key-table root
 
 bind-key -T $KT_CMD $KBD_COPY_MODE $CMD_COPY_MODE
 
-bind-key -T $KT_CMD $KBD_PASTE $CMD_PASTE
-
 bind-key -T $KT_CMD $KBD_CMD_PROMPT $CMD_CMD_PROMPT
 EOF
 
@@ -213,6 +211,7 @@ bind-key -T $KT_WIN $KBD_WIN_GOTO_8 $CMD_WIN_GOTO_8
 bind-key -T $KT_WIN $KBD_WIN_GOTO_9 $CMD_WIN_GOTO_9
 bind-key -T $KT_WIN $KBD_WIN_GOTO_TREE $CMD_WIN_GOTO_TREE
 bind-key -T $KT_WIN $KBD_WIN_GOTO_INDEX $CMD_WIN_GOTO_INDEX
+bind-key -T $KT_WIN $KBD_WIN_FLOAT $CMD_WIN_FLOAT
 
 bind-key -T $KT_WIN $KBD_WIN_PANE_LEFT $CMD_WIN_PANE_LEFT
 bind-key -T $KT_WIN $KBD_WIN_PANE_RIGHT $CMD_WIN_PANE_RIGHT
@@ -330,47 +329,6 @@ bind-key -T $KT_SESS $KBD_SESS_DEL $CMD_SESS_DEL
 bind-key -T $KT_SESS $KBD_SESS_RENAME $CMD_SESS_RENAME
 EOF
 
-# goto.
-KT_GOTO=$KT_PREFIX-goto
-cat << EOF >> "$KBD_FILE"
-
-bind-key -T $KT_CMD $KBD_GOTO switch-client -T $KT_GOTO
-EOF
-
-# goto-window.
-KT_GOTO_WIN=$KT_PREFIX-goto-window
-cat << EOF >> "$KBD_FILE"
-
-bind-key -T $KT_GOTO $KBD_GOTO_WIN switch-client -T $KT_GOTO_WIN
-
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_0 $CMD_GOTO_WIN_0
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_1 $CMD_GOTO_WIN_1
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_2 $CMD_GOTO_WIN_2
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_3 $CMD_GOTO_WIN_3
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_4 $CMD_GOTO_WIN_4
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_5 $CMD_GOTO_WIN_5
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_6 $CMD_GOTO_WIN_6
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_7 $CMD_GOTO_WIN_7
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_8 $CMD_GOTO_WIN_8
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_9 $CMD_GOTO_WIN_9
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_TREE $CMD_GOTO_WIN_TREE
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_INDEX $CMD_GOTO_WIN_INDEX
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_PREV $CMD_GOTO_WIN_PREV
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_NEXT $CMD_GOTO_WIN_NEXT
-bind-key -T $KT_GOTO_WIN $KBD_GOTO_WIN_LAST $CMD_GOTO_WIN_LAST
-EOF
-
-# goto-session.
-KT_GOTO_SESS=$KT_PREFIX-goto-session
-cat << EOF >> "$KBD_FILE"
-
-bind-key -T $KT_GOTO $KBD_GOTO_SESS switch-client -T $KT_GOTO_SESS
-
-bind-key -T $KT_GOTO_SESS $KBD_GOTO_SESS_PREV $CMD_GOTO_SESS_PREV
-bind-key -T $KT_GOTO_SESS $KBD_GOTO_SESS_NEXT $CMD_GOTO_SESS_NEXT
-bind-key -T $KT_GOTO_SESS $KBD_GOTO_SESS_TREE $CMD_GOTO_SESS_TREE
-EOF
-
 # Load the keybindings.
 tmux source-file "$KBD_FILE"
 
@@ -389,6 +347,7 @@ STATUS_LEFT=`
     `'},'`
    `$KT_CMD_ICON' ,'`
 `'}'
+KT_LOCK_ICON=🔒
 
 if [ "$SHOW_CMD_KEYS_VAL" == on ]; then
     # Check which key table is in use and use corresponding "icon" in the left
@@ -401,10 +360,6 @@ if [ "$SHOW_CMD_KEYS_VAL" == on ]; then
     KT_WIN_RESIZE_ICON="[$KBD_WIN$KBD_WIN_RESIZE]"
 
     KT_SESS_ICON="[$KBD_SESS]"
-
-    KT_GOTO_ICON="[$KBD_GOTO]"
-    KT_GOTO_WIN_ICON="[$KBD_GOTO$KBD_GOTO_WIN]"
-    KT_GOTO_SESS_ICON="[$KBD_GOTO$KBD_GOTO_SESS]"
 
     # Seems to be the only way to to do if-elseif-...-else in tmux format
     # syntax...
@@ -449,22 +404,7 @@ if [ "$SHOW_CMD_KEYS_VAL" == on ]; then
          `'#{client_key_table}'`
         `'},'`
        `$KT_SESS_ICON' ,'`
-    `'#{'`
-     `'?#{==:'$KT_GOTO','`
-         `'#{client_key_table}'`
-        `'},'`
-       `$KT_GOTO_ICON' ,'`
-    `'#{'`
-     `'?#{==:'$KT_GOTO_WIN','`
-         `'#{client_key_table}'`
-        `'},'`
-       `$KT_GOTO_WIN_ICON' ,'`
-    `'#{'`
-     `'?#{==:'$KT_GOTO_SESS','`
-         `'#{client_key_table}'`
-        `'},'`
-       `$KT_GOTO_SESS_ICON' ,'`
-    `'}}}}}}}}}}}'
+    `' '$KT_LOCK_ICON'}}}}}}}}'
 fi
 
 # We want to set the left status bar once; do it only if we can't find our
